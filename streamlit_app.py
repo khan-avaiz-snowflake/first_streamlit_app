@@ -36,24 +36,26 @@ streamlit.header("Fruityvice Fruit Advice!")
 try:
   fruit_choice = streamlit.text_input('What fruit would you like information about?')
   if not fruit_choice:
-    strealit.error("Please select a fruit to get information.")
+    streamlit.error("Please select a fruit to get information.")
   else:
-    back_from_funciton=get_fruityvice_data(fruit_choice)
+    back_from_function=get_fruityvice_data(fruit_choice)
     streamlit.dataframe(fruityvice_normalized)
 
 except URLError as e:
   streamlit.error()
-  
-#stop below runs
-streamlit.stop()
-# import snowflake.connector
 
-my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
-my_cur = my_cnx.cursor()
-my_cur.execute("SELECT * FROM FRUIT_LOAD_LIST")
-my_data_rows = my_cur.fetchall()
 streamlit.header("the fruit load list contains:")
-streamlit.dataframe(my_data_rows)
+#snowflake related funcions
+def get_fruit_load_list():
+  with my_cnx.cursor() as my_cur:
+    my_cur.execute("select ( from fruit_load_list")
+    return my_cur.fetchall()
+
+#add a button to load fruit
+if streamlit.button('Get Fruit Load List'):
+  my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+  my_data_rows = get_fruit_load_list()
+  streamlit.dataframe(my_data_rows)
 
 selected_fruit = streamlit.text_input('What fruit would you like to add?','jackfruit')
 streamlit.write('The user entered ', selected_fruit)
